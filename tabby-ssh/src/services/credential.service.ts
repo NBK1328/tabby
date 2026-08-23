@@ -80,7 +80,7 @@ export class CredentialService {
         if (!resolved.options.user && credential.username) {
             resolved.options.user = credential.username
         }
-        if (credential.privateKeys?.length && (!resolved.options.privateKeys || resolved.options.privateKeys.length === 0)) {
+        if (credential.privateKeys.length && resolved.options.privateKeys.length === 0) {
             resolved.options.privateKeys = [...credential.privateKeys]
         }
         const password = await this.loadPassword(credentialId)

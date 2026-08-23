@@ -96,7 +96,7 @@ export class SSHProfilesService extends QuickConnectProfileProvider<SSHProfile> 
     }
 
     async getNewTabParameters (profile: SSHProfile): Promise<NewTabParameters<SSHTabComponent>> {
-        let groupCredentialId: string | undefined
+        let groupCredentialId: string | undefined = undefined
         if (profile.group) {
             const profilesService = this.injector.get(ProfilesService, null, InjectFlags.Optional)
             const group = profilesService?.resolveProfileGroup(profile.group)

@@ -225,7 +225,7 @@ export class ProfileTreeComponent extends BaseComponent {
             }
             if (!this.config.store.terminal.showBuiltinProfiles) { groups = groups.filter(g => g.id !== 'built-in') }
 
-            const matchedGroups = groups.filter(g => (g.name ?? '').toLowerCase().includes(q))
+            const matchedGroups = groups.filter(g => g.name.toLowerCase().includes(q))
 
             const profiles = await this.profilesService.getProfiles({
                 includeBuiltin: this.config.store.terminal.showBuiltinProfiles,

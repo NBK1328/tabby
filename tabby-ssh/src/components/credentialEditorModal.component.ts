@@ -55,7 +55,7 @@ export class CredentialEditorModalComponent {
     }
 
     async save (): Promise<void> {
-        if (!this.credential.name?.trim()) {
+        if (!this.credential.name.trim()) {
             return
         }
         await this.credentials.upsertCredential(this.credential)
