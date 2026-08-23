@@ -1,7 +1,7 @@
 import { Component } from '@angular/core'
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { v4 as uuidv4 } from 'uuid'
-import { FileProvidersService, PromptModalComponent } from 'tabby-core'
+import { FileProvidersService, PromptModalComponent, TranslateService } from 'tabby-core'
 import { CredentialService } from '../services/credential.service'
 import { SavedCredential } from '../api'
 
@@ -19,6 +19,7 @@ export class CredentialEditorModalComponent {
         private fileProviders: FileProvidersService,
         private ngbModal: NgbModal,
         private modal: NgbActiveModal,
+        private translate: TranslateService,
     ) { }
 
     async ngOnInit (): Promise<void> {
@@ -45,7 +46,7 @@ export class CredentialEditorModalComponent {
 
     async setPassword (): Promise<void> {
         const modal = this.ngbModal.open(PromptModalComponent)
-        modal.componentInstance.prompt = `Password for ${this.credential.username || this.credential.name}`
+        modal.componentInstance.prompt = this.translate.instant('Password for {name}', { name: this.credential.username || this.credential.name })
         modal.componentInstance.password = true
         const result = await modal.result.catch(() => null)
         if (result?.value) {
@@ -61,7 +62,7 @@ export class CredentialEditorModalComponent {
 
     async setPrivateKeyPassphrase (): Promise<void> {
         const modal = this.ngbModal.open(PromptModalComponent)
-        modal.componentInstance.prompt = `Private key passphrase for ${this.credential.username || this.credential.name}`
+        modal.componentInstance.prompt = this.translate.instant('Private key passphrase for {name}', { name: this.credential.username || this.credential.name })
         modal.componentInstance.password = true
         const result = await modal.result.catch(() => null)
         if (result?.value) {

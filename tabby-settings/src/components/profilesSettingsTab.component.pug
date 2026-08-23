@@ -47,7 +47,7 @@ ul.nav-tabs(ngbNav, #nav='ngbNav')
 
             .d-flex.flex-column.my-3.p-2.collapse-container(*ngIf='searchActive')
                 .text-muted.px-1.py-2
-                    | Found: {{ searchGroups.length + searchProfiles.length }}
+                    | {{ "Found" | translate }}: {{ searchGroups.length + searchProfiles.length }}
                 ng-container(*ngFor='let group of searchGroups')
                     ng-container(*ngTemplateOutlet='recursiveGroup; context: {$implicit: group}')
                 ng-container(*ngFor='let profile of searchProfiles')
