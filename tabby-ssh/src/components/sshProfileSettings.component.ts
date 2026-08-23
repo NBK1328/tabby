@@ -77,7 +77,7 @@ export class SSHProfileSettingsComponent implements ProfileSettingsComponent<SSH
     onCredentialChange () {
         if (this.profile.options.credentialId) {
             const cred = this.credentialService.getCredentials().find(c => c.id === this.profile.options.credentialId)
-            if (cred && cred.username) {
+            if (cred?.username) {
                 this.profile.options.user = cred.username
             }
         }
