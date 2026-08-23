@@ -3,4 +3,5 @@ export interface SavedCredential {
     name: string
     username: string
     privateKeys: string[]
+    usePasswordAsKeyPassphrase?: boolean
 }

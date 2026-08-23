@@ -21,6 +21,7 @@ export interface SSHProfileOptions extends LoginScriptsOptions {
     password: string
     privateKeys: string[]
     credentialId: string | null
+    privateKeyPassphrase?: string | null
     keepaliveInterval: number
     keepaliveCountMax: number
     readyTimeout: number | null

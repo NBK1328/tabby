@@ -945,6 +945,10 @@ export class SSHSession {
 
         privateKey = privateKey.replaceAll('EC PRIVATE KEY', 'PRIVATE KEY')
 
+        if (this.profile?.options?.privateKeyPassphrase) {
+            return await russh.KeyPair.parse(privateKey, this.profile.options.privateKeyPassphrase)
+        }
+
         let triedSavedPassphrase = false
         let passphrase: string|null = null
         while (true) {

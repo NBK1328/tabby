@@ -5,6 +5,7 @@ import { SavedCredential, SSHProfile } from '../api'
 import deepClone from 'clone-deep'
 
 const VAULT_SECRET_TYPE_CREDENTIAL_PASSWORD = 'ssh:credential-password'
+const VAULT_SECRET_TYPE_CREDENTIAL_KEY_PASSPHRASE = 'ssh:credential-key-passphrase'
 
 @Injectable({ providedIn: 'root' })
 export class CredentialService {
@@ -67,6 +68,38 @@ export class CredentialService {
         }
     }
 
+    private vaultKeyPassphrase (credentialId: string) {
+        return { credentialId: `passphrase:${credentialId}` }
+    }
+
+    async savePrivateKeyPassphrase (credentialId: string, passphrase: string): Promise<void> {
+        if (this.vault.isEnabled()) {
+            this.vault.addSecret({ type: VAULT_SECRET_TYPE_CREDENTIAL_KEY_PASSPHRASE, key: this.vaultKeyPassphrase(credentialId), value: passphrase })
+        } else {
+            await keytar.setPassword(`ssh-credential-passphrase:${credentialId}`, 'user', passphrase)
+        }
+    }
+
+    async loadPrivateKeyPassphrase (credentialId: string): Promise<string|null> {
+        if (this.vault.isEnabled()) {
+            return (await this.vault.getSecret(VAULT_SECRET_TYPE_CREDENTIAL_KEY_PASSPHRASE, this.vaultKeyPassphrase(credentialId)))?.value ?? null
+        } else {
+            try {
+                return await keytar.getPassword(`ssh-credential-passphrase:${credentialId}`, 'user')
+            } catch {
+                return null
+            }
+        }
+    }
+
+    async deletePrivateKeyPassphrase (credentialId: string): Promise<void> {
+        if (this.vault.isEnabled()) {
+            this.vault.removeSecret(VAULT_SECRET_TYPE_CREDENTIAL_KEY_PASSPHRASE, this.vaultKeyPassphrase(credentialId))
+        } else {
+            await keytar.deletePassword(`ssh-credential-passphrase:${credentialId}`, 'user').catch(() => null)
+        }
+    }
+
     async resolveProfile (profile: SSHProfile, groupCredentialId?: string): Promise<SSHProfile> {
         const credentialId = profile.options.credentialId ?? groupCredentialId
         if (!credentialId) {
@@ -77,15 +110,24 @@ export class CredentialService {
             return profile
         }
         const resolved: SSHProfile = deepClone(profile)
-        if (!resolved.options.user && credential.username) {
+        if (credential.username) {
             resolved.options.user = credential.username
         }
-        if (credential.privateKeys.length && resolved.options.privateKeys.length === 0) {
+        if (credential.privateKeys?.length && resolved.options.privateKeys.length === 0) {
             resolved.options.privateKeys = [...credential.privateKeys]
         }
         const password = await this.loadPassword(credentialId)
         if (password) {
             resolved.options.password = password
+        }
+        let keyPassphrase: string | null = null
+        if (credential.usePasswordAsKeyPassphrase) {
+            keyPassphrase = password
+        } else {
+            keyPassphrase = await this.loadPrivateKeyPassphrase(credentialId)
+        }
+        if (keyPassphrase) {
+            resolved.options.privateKeyPassphrase = keyPassphrase
         }
         return resolved
     }

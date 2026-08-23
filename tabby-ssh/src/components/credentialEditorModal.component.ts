@@ -10,8 +10,9 @@ import { SavedCredential } from '../api'
     templateUrl: './credentialEditorModal.component.pug',
 })
 export class CredentialEditorModalComponent {
-    credential: SavedCredential = { id: '', name: '', username: '', privateKeys: [] }
+    credential: SavedCredential = { id: '', name: '', username: '', privateKeys: [], usePasswordAsKeyPassphrase: false }
     hasSavedPassword = false
+    hasSavedKeyPassphrase = false
 
     constructor (
         private credentials: CredentialService,
@@ -25,6 +26,10 @@ export class CredentialEditorModalComponent {
             this.credential.id = uuidv4()
         }
         this.hasSavedPassword = !!await this.credentials.loadPassword(this.credential.id)
+        this.hasSavedKeyPassphrase = !!await this.credentials.loadPrivateKeyPassphrase(this.credential.id)
+        if (this.credential.usePasswordAsKeyPassphrase === undefined) {
+            this.credential.usePasswordAsKeyPassphrase = false
+        }
     }
 
     async addPrivateKey (): Promise<void> {
@@ -52,6 +57,22 @@ export class CredentialEditorModalComponent {
     async clearPassword (): Promise<void> {
         await this.credentials.deletePassword(this.credential.id)
         this.hasSavedPassword = false
+    }
+
+    async setPrivateKeyPassphrase (): Promise<void> {
+        const modal = this.ngbModal.open(PromptModalComponent)
+        modal.componentInstance.prompt = `Private key passphrase for ${this.credential.username || this.credential.name}`
+        modal.componentInstance.password = true
+        const result = await modal.result.catch(() => null)
+        if (result?.value) {
+            await this.credentials.savePrivateKeyPassphrase(this.credential.id, result.value)
+            this.hasSavedKeyPassphrase = true
+        }
+    }
+
+    async clearPrivateKeyPassphrase (): Promise<void> {
+        await this.credentials.deletePrivateKeyPassphrase(this.credential.id)
+        this.hasSavedKeyPassphrase = false
     }
 
     async save (): Promise<void> {
