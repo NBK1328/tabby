@@ -88,9 +88,10 @@ button.btn.btn-primary.mb-3((click)='editCredential()')
                 td {{ c.username }}
                 td {{ c.privateKeys.length }}
                 td.text-end
-                    .action((click)='editCredential(c)')
-                        i.fas.fa-edit
-                    .action((click)='deleteCredential(c)')
-                        i.fas.fa-trash
+                    .d-flex.justify-content-end.gap-2
+                        .action((click)='editCredential(c)')
+                            i.fas.fa-edit
+                        .action((click)='deleteCredential(c)')
+                            i.fas.fa-trash
 
 .alert.alert-info(*ngIf='!credentials.getCredentials().length', translate) No saved credentials yet.
